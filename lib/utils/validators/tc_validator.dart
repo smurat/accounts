@@ -1,0 +1,91 @@
+class Tckn {
+  final int _chkCount = 10;
+  final int _chrCount = 11;
+
+  bool check(String value) {
+    bool returnStatus = true;
+
+    // isEmpty Check
+    if (value.isEmpty) {
+      returnStatus = false;
+    } else {
+      /// Kural-1: Tüm karakterleri rakam olmalıdır.
+      if (value.contains(RegExp(r'[A-Z,a-z,ü,Ü,ö,Ö,ğ,Ğ,i,İ,ç,Ç,ş,Ş]'))) {
+        returnStatus = false;
+      } else {
+        ///Kural-2: TC Kimlik numarası 11 basamaktan oluşmalıdır.
+        if (value.toString().length != 11) {
+          returnStatus = false;
+        }
+
+        /// Kural-3: İlk hanesi 0 olamaz.
+        if (value.toString().substring(0, 1) == "0") {
+          returnStatus = false;
+        }
+
+        /// Kural-4: İlk 9 basamak arasındaki algoritma, 10. basamağı vermelidir.
+        if (getRuleFourStatus(value) == false) {
+          returnStatus = false;
+        }
+
+        /// Kural-5: İlk 10 basamak arasındaki algoritma, 11. basamağı vermelidir.
+        if (getRuleFiveStatus(value) == false) {
+          returnStatus = false;
+        }
+      }
+    }
+
+    return returnStatus;
+  }
+
+  /// UTILITY: Kullanıcı arayüzünde girilmiş olan TCKN'nin List tipine dönüştürür.
+  List getTcknCharList(String val) {
+    var tcknCharList = [];
+    for (int i = 0; i < val.toString().length; i++) {
+      tcknCharList.add(val.substring(i, i + 1));
+    }
+    return tcknCharList;
+  }
+
+  /// UTILITY: TCKN Algoritmasına göre ilk 10 rakamın toplamını int olarak geri döndürür.
+  int getTopTenTotal(List tcknCharList) {
+    int total = 0;
+    for (int i = 0; i < _chkCount; i++) {
+      total += int.parse(tcknCharList[i].toString());
+    }
+    return total;
+  }
+
+  /// UTILITY: TCKN Algoritmasına göre ilk 9 rakamın toplamını String olarak geri döndürür.
+  String getFirstNineTotal(List tcknCharList) {
+    int singleNumberTotal = 0;
+    int doubleNumberTotal = 0;
+
+    for (int i = 0; i < 9; i++) {
+      if (i % 2 == 0) {
+        singleNumberTotal += int.parse(tcknCharList[i].toString());
+      } else {
+        // 2,4,6,8
+        doubleNumberTotal += int.parse(tcknCharList[i].toString());
+      }
+    }
+
+    return (((singleNumberTotal * 7) - doubleNumberTotal) % 10).toString();
+  }
+
+  /// Kural-4 Kontrol Metodu
+  bool getRuleFourStatus(String val) {
+    var tcknCharList = getTcknCharList(val);
+    if (tcknCharList.length < _chkCount) return false;
+
+    return getFirstNineTotal(tcknCharList) == tcknCharList[_chkCount - 1];
+  }
+
+  /// Kural-5 Kontrol Metodu
+  bool getRuleFiveStatus(String val) {
+    List tcknCharList = getTcknCharList(val);
+    if (tcknCharList.length != _chrCount) return false;
+
+    return (tcknCharList[_chkCount]).toString() == (getTopTenTotal(tcknCharList) % 10).toString();
+  }
+}
